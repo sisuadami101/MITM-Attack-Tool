@@ -29,3 +29,9 @@ pkg install git
 pkg install scapy
 pkg install openssl
 pkg install curl
+
+
+### Usage
+Input your Gmail address and password to send captured data to an email.
+Enter the target IP address and gateway IP for the attack.
+Enable IP forwarding to intercept the traffic.
