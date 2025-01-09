@@ -2,6 +2,11 @@
 
 **MITM Attack Tool** is a powerful tool for monitoring and capturing network traffic, intercepting packets, and conducting Man-In-The-Middle attacks. This tool is designed for educational and testing purposes.
 
+## Usage
+- Input your Gmail address and password to send captured data to an email.
+- Enter the target IP address and gateway IP for the attack.
+- Enable IP forwarding to intercept the traffic.
+
 ## Features
 - Intercept network traffic
 - Capture HTTP packets
@@ -24,14 +29,9 @@ In Termux, execute the following commands to install dependencies:
 
 ```bash
 pkg update
+pkg install termux-api
 pkg install python
 pkg install git
-pkg install scapy
 pkg install openssl
 pkg install curl
-
-
-### Usage
-Input your Gmail address and password to send captured data to an email.
-Enter the target IP address and gateway IP for the attack.
-Enable IP forwarding to intercept the traffic.
+pip install scapy
