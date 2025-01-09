@@ -68,7 +68,7 @@ pip install scapy
 MIT License. See `LICENSE` for more details.
 
 ## Author:
-Created by ##ErrorMask
+Created by **ErrorMask**
 
 ## Disclaimer:
 
